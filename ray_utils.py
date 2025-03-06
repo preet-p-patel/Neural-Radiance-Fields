@@ -91,9 +91,16 @@ def get_pixels_from_image(image_size, camera):
     # TODO (Q1.3): Generate pixel coordinates from [0, W] in x and [0, H] in y
     pass
 
+    x = torch.linspace(0, W, steps=W)
+    y = torch.linspace(0, H, steps=H)
+
     # TODO (Q1.3): Convert to the range [-1, 1] in both x and y
     pass
-
+    x_max = x[-1]
+    y_max = y[-1]
+    x = 2*(x/x_max) - 1
+    y = 2*(y/y_max) - 1
+    
     # Create grid of coordinates
     xy_grid = torch.stack(
         tuple( reversed( torch.meshgrid(y, x) ) ),
@@ -120,6 +127,8 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     # TODO (Q1.3): Map pixels to points on the image plane at Z=1
     pass
+    z = torch.ones((xy_grid.shape[0], 1))                           
+    ndc_points = torch.cat((xy_grid, z), dim=-1)            # Adding z dimension to project (x, y) to (x, y, z=1)
 
     ndc_points = torch.cat(
         [
@@ -131,12 +140,14 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     # TODO (Q1.3): Use camera.unproject to get world space points from NDC space points
     pass
+    world_space_points = camera.unproject(ndc_points)
 
     # TODO (Q1.3): Get ray origins from camera center
     pass
-
+    rays_o = camera.get_camera_center()
     # TODO (Q1.3): Get ray directions as image_plane_points - rays_o
     pass
+    rays_d = world_space_points - rays_o
 
     # Create and return RayBundle
     return RayBundle(
