@@ -35,7 +35,7 @@ from dataset import (
     trivial_collate,
 )
 
-
+from render_functions import render_points
 # Model class containing:
 #   1) Implicit volume defining the scene
 #   2) Sampling scheme which generates sample points along rays
@@ -112,9 +112,11 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-
+        sampler = sampler_dict['stratified']()
+        pts = sampler.forward(ray_bundle)
         # TODO (Q1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
+            img = render_points("images/1_4.png", pts)
             pass
 
         # TODO (Q1.5): Implement rendering in renderer.py
