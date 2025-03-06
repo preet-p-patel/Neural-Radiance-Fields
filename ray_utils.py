@@ -137,6 +137,7 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
         ],
         dim=-1
     )
+    ndc_points = ndc_points.cuda()
     print("ndc device: ", ndc_points.device)
 
     # TODO (Q1.3): Use camera.unproject to get world space points from NDC space points
