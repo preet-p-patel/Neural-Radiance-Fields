@@ -99,14 +99,14 @@ def render_images(
         # TODO (Q1.3): Visualize xy grid using vis_grid
         if cam_idx == 0 and file_prefix == '':
             img = vis_grid(xy_grid, (256, 256))
-            plt.imsave("images/grid_vis.png", img)
+            plt.imsave("images/1_3_grid_vis.png", img)
             #print("done grid")
             pass
 
         # TODO (Q1.3): Visualize rays using vis_rays
         if cam_idx == 0 and file_prefix == '':
             img = vis_rays(ray_bundle, (256, 256))
-            plt.imsave("images/grid_rays.png", img)
+            plt.imsave("images/1_3_grid_rays.png", img)
             print("done rays")
             pass
         
