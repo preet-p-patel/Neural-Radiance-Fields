@@ -138,13 +138,13 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
         dim=-1
     )
     ndc_points = ndc_points.cuda()
-    print("ndc device: ", ndc_points.device)
+    # print("ndc device: ", ndc_points.device)
 
     # TODO (Q1.3): Use camera.unproject to get world space points from NDC space points
     pass
     world_space_points = camera.unproject_points(ndc_points)
-    print("camera device", camera.device)
-    print("world space points device", world_space_points.device)
+    # print("camera device", camera.device)
+    # print("world space points device", world_space_points.device)
 
     # TODO (Q1.3): Get ray origins from camera center
     pass

@@ -98,10 +98,12 @@ def render_images(
 
         # TODO (Q1.3): Visualize xy grid using vis_grid
         if cam_idx == 0 and file_prefix == '':
+            vis_grid(xy_grid)
             pass
 
         # TODO (Q1.3): Visualize rays using vis_rays
         if cam_idx == 0 and file_prefix == '':
+            vis_rays(ray_bundle)
             pass
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
