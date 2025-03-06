@@ -127,8 +127,10 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     # TODO (Q1.3): Map pixels to points on the image plane at Z=1
     pass
+    device = camera.device
     z = torch.ones((xy_grid.shape[0], 1))                           
     ndc_points = torch.cat((xy_grid, z), dim=-1)            # Adding z dimension to project (x, y) to (x, y, z=1)
+    ndc_points = ndc_points.to(device)  
 
     ndc_points = torch.cat(
         [
