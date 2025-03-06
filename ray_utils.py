@@ -140,7 +140,7 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     # TODO (Q1.3): Use camera.unproject to get world space points from NDC space points
     pass
-    world_space_points = camera.unproject(ndc_points)
+    world_space_points = CamerasBase.unproject(ndc_points)
 
     # TODO (Q1.3): Get ray origins from camera center
     pass
