@@ -112,6 +112,8 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
+        near = ray_bundle.sample_lengths[0]
+        far = ray_bundle.sample_lengths[-1] # add cfg variable
         sampler = sampler_dict['stratified']()
         pts = sampler.forward(ray_bundle)
         # TODO (Q1.4): Visualize sample points as point cloud
