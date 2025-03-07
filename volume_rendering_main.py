@@ -114,7 +114,11 @@ def render_images(
         pass
         near = ray_bundle.sample_lengths[0]
         far = ray_bundle.sample_lengths[-1] 
-        pts_per_ray = int(far - near)               # 1 point at each depth
+        pts_per_ray = 5               # 1 point at each depth
+
+        print("far: ", far)
+        print("near: ", near)
+        print("pts per ray : ", pts_per_ray)
         cfg = {"n_pts_per_ray": pts_per_ray, 
                "max_depth": far, 
                "min_depth": near}
