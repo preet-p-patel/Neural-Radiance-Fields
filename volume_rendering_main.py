@@ -112,17 +112,8 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-        near = 1
-        far = 10                      # Kept constant values for now 
-        pts_per_ray = 5               # 1 point at each depth
 
-        print("far: ", far)
-        print("near: ", near)
-        print("pts per ray : ", pts_per_ray)
-        cfg = {"n_pts_per_ray": pts_per_ray, 
-               "max_depth": far, 
-               "min_depth": near}
-        sampler = sampler_dict['stratified'](cfg=cfg)
+        sampler = sampler_dict['stratified'](cfg=model.cfg)
         pts = sampler.forward(ray_bundle)
         
         # TODO (Q1.4): Visualize sample points as point cloud
