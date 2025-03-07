@@ -112,7 +112,7 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-
+        print("cfg: ", model.cfg)
         sampler = sampler_dict['stratified'](cfg=model.cfg)
         pts = sampler.forward(ray_bundle)
         
