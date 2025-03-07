@@ -62,7 +62,7 @@ class Model(torch.nn.Module):
         self.renderer = renderer_dict[cfg.renderer.type](
             cfg.renderer
         )
-    
+        self.cfg = cfg      #Added cfg variable to pass to 
     def forward(
         self,
         ray_bundle
