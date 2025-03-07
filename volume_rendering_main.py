@@ -112,8 +112,8 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-        print("cfg: ", model.cfg)
-        sampler = sampler_dict['stratified'](cfg=model.cfg)
+        print("cfg: ", model.cfg['sampler'])
+        sampler = sampler_dict['stratified'](cfg=model.cfg['sampler'])
         pts = sampler.forward(ray_bundle)
         
         # TODO (Q1.4): Visualize sample points as point cloud
