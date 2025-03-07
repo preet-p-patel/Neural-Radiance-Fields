@@ -112,12 +112,12 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-        near = ray_bundle.sample_lengths[0]
-        far = ray_bundle.sample_lengths[-1] 
+        near = ray_bundle.sample_lengths.min()
+        far = ray_bundle.sample_lengths.max() 
         pts_per_ray = 5               # 1 point at each depth
 
-        print("far: ", far)
-        print("near: ", near)
+        print("far: ", far.item())
+        print("near: ", near.item())
         print("pts per ray : ", pts_per_ray)
         cfg = {"n_pts_per_ray": pts_per_ray, 
                "max_depth": far, 
