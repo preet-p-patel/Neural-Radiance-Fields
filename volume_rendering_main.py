@@ -114,11 +114,11 @@ def render_images(
         pass
         #print("cfg: ", model.cfg['sampler'])
         sampler = sampler_dict['stratified'](cfg=model.cfg['sampler'])
-        pts = sampler.forward(ray_bundle)
+        ray = sampler.forward(ray_bundle)
         
         # TODO (Q1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
-            img = render_points("images/1_4.png", pts)
+            img = render_points("images/1_4.png", ray.sample_points)
             pass
 
         # TODO (Q1.5): Implement rendering in renderer.py
