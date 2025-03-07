@@ -26,6 +26,10 @@ class StratifiedRaysampler(torch.nn.Module):
         z_vals = torch.linspace(self.min_depth, self.max_depth, self.n_pts_per_ray)
 
         # TODO (Q1.4): Sample points from z values
+        print(ray_bundle.origins.shape)      # Expected: [N, 3] (N = number of rays)
+        print(ray_bundle.directions.shape)   # Expected: [N, 3]
+        print(z_vals.shape)                  # Expected: [N, 64] or [N, 64, 1]
+
         sample_points = ray_bundle.origins + z_vals * ray_bundle.directions
 
         # Return
