@@ -42,7 +42,8 @@ class VolumeRenderer(torch.nn.Module):
         print("weights shape:", weights.shape)
         print("rays_feature shape:", rays_feature.shape)
         N = weights.shape[1]
-        rf = rays_feature.view(-1, N, 3)
+        rf = rays_feature
+        rf.view(-1, N, 3)
         # N = rays_feature.shape[0]
         # weights = weights.view(N, -1, 1)
         feature = torch.sum(weights * rf, dim=1)
