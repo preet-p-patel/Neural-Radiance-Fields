@@ -41,8 +41,10 @@ class VolumeRenderer(torch.nn.Module):
         pass
         print("weights shape:", weights.shape)
         print("rays_feature shape:", rays_feature.shape)
-        N = weights.shape[0]
-        rays_feature = rays_feature.view(N, 64, 3)
+        # N = weights.shape[0]
+        # rays_feature = rays_feature.view(N, 64, 3)
+        N = rays_feature.shape[0]
+        weights = weights.view(N, -1, 1)
         feature = torch.sum(weights * rays_feature, dim=1)
 
         return feature
@@ -85,7 +87,7 @@ class VolumeRenderer(torch.nn.Module):
                 deltas.view(-1, n_pts, 1),
                 density.view(-1, n_pts, 1)
             ) 
-            print("shape of weights: ", weights.shape)
+            #print("shape of weights: ", weights.shape)
             # TODO (1.5): Render (color) features using weights
             pass
             feature = self._aggregate(weights=weights, rays_feature=feature)
