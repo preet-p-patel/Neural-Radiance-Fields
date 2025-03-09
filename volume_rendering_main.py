@@ -116,14 +116,16 @@ def render_images(
         #print("cfg: ", model.cfg['sampler'])
         sampler = sampler_dict['stratified'](cfg=model.cfg['sampler'])
         ray = sampler.forward(ray_bundle)
-        
+        print("checkpoint1")
         # TODO (Q1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
             img = render_points("images/1_4.png", ray.sample_points)
+            print("checkpoint2")
             pass
 
         # TODO (Q1.5): Implement rendering in renderer.py
         out = model(ray_bundle)
+        print("checkpoint3")
 
         # Return rendered features (colors)
         image = np.array(
