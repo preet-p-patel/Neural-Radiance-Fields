@@ -42,10 +42,10 @@ class VolumeRenderer(torch.nn.Module):
         print("weights shape:", weights.shape)
         print("rays_feature shape:", rays_feature.shape)
         N = weights.shape[1]
-        rays_feature = rays_feature.view(-1, N, 3)
+        rf = rays_feature.view(-1, N, 3)
         # N = rays_feature.shape[0]
         # weights = weights.view(N, -1, 1)
-        feature = torch.sum(weights * rays_feature, dim=1)
+        feature = torch.sum(weights * rf, dim=1)
         print("end for aggregate")
         return feature
 
