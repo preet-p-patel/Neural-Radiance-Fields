@@ -108,16 +108,16 @@ def render_images(
         if cam_idx == 0 and file_prefix == '':
             img = vis_rays(ray_bundle, (256, 256))
             plt.imsave("images/1_3_grid_rays.png", img)
-            print("done rays")
+            #print("done rays")
             pass
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
         sampler = sampler_dict['stratified'](cfg=model.cfg['sampler'])
-        ray = sampler.forward(ray_bundle)
+        sampler.forward(ray_bundle)
         # TODO (Q1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
-            render_points("images/1_4.png", ray.sample_points.reshape(1, -1, 3), image_size=512)
+            render_points("images/1_4.png", ray_bundle.sample_points.reshape(1, -1, 3))
             pass
 
         # TODO (Q1.5): Implement rendering in renderer.py
