@@ -27,11 +27,11 @@ class StratifiedRaysampler(torch.nn.Module):
         z_vals = z_vals.to('cuda')
         # TODO (Q1.4): Sample points from z values
         # z_vals = z_vals.view(1, 64, 1)
-        
+        O = ray_bundle.origins.shape[0]
         N = z_vals.shape[0] 
         origins = ray_bundle.origins.unsqueeze(1).repeat(1, N, 1)
         directions = ray_bundle.directions.unsqueeze(1).repeat(1, N, 1) 
-        z_vals = z_vals.unsqueeze(0).unsqueeze(-1).repeat(0, 1, 1)
+        z_vals = z_vals.unsqueeze(0).unsqueeze(-1).repeat(O, 1, 1)
         
         print(ray_bundle.origins.shape)      # Expected: [N, 3] (N = number of rays)
         print(ray_bundle.directions.shape)   # Expected: [N, 3]
