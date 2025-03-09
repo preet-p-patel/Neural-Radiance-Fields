@@ -39,6 +39,9 @@ class VolumeRenderer(torch.nn.Module):
     ):
         # TODO (1.5): Aggregate (weighted sum of) features using weights
         pass
+        print("weights shape:", weights.shape)
+        print("rays_feature shape:", rays_feature.shape)
+
         feature = torch.sum(weights * rays_feature, dim=1)
 
         return feature
