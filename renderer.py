@@ -41,13 +41,19 @@ class VolumeRenderer(torch.nn.Module):
         pass
         print("weights shape:", weights.shape)
         print("rays_feature shape:", rays_feature.shape)
-        N = weights.shape[1]
-        rf = rays_feature
-        rf = rf.view(-1, N, 3)
-        print("rf shape:", rf.shape)
+        N = weights.shape[0]
+        O = weights.shape[1]
+        
+        if rays_feature.shape == (N * O, 3):  
+            rays_feature = rays_feature.view(N, O, 3)  # Reshape to [N, O, 3]
+        elif rays_feature.shape == (N, O):  
+            rays_feature = rays_feature.unsqueeze(-1)  # Expand to [N, O, 1]
+
+
+        print("rf shape:", rays_feature.shape)
         # N = rays_feature.shape[0]
         # weights = weights.view(N, -1, 1)
-        feature = torch.sum(weights * rf, dim=1)
+        feature = torch.sum(weights * rays_feature, dim=1)
         print("end for aggregate")
         return feature
 
