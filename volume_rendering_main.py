@@ -119,7 +119,7 @@ def render_images(
         print("checkpoint1")
         # TODO (Q1.4): Visualize sample points as point cloud
         if cam_idx == 0 and file_prefix == '':
-            render_points("images/1_4.png", ray.sample_points)
+            render_points("images/1_4.png", ray.sample_points.reshape(-1, 3))
             print("checkpoint2")
             pass
 
