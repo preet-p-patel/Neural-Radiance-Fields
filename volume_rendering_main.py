@@ -113,7 +113,7 @@ def render_images(
         
         # TODO (Q1.4): Implement point sampling along rays in sampler.py
         pass
-        #print("cfg: ", model.cfg['sampler'])
+        print("cfg: ", model.cfg['sampler'])
         sampler = sampler_dict['stratified'](cfg=model.cfg['sampler'])
         ray = sampler.forward(ray_bundle)
         print("checkpoint1")
