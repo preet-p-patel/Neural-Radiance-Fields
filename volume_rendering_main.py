@@ -134,7 +134,7 @@ def render_images(
         # TODO (Q1.5): Visualize depth
         if cam_idx == 2 and file_prefix == '':
             pass
-            image_density = np.array(out['density'].view(image_size[1], image_size[0], 3).detach().cpu())
+            image_density = np.array(out['density'].view(image_size[1], image_size[0]).detach().cpu())
             depth_max = image_density.max()
             image_density = image_density/depth_max
             plt.imsave('images/1_5_depth_map.png', image_density)
