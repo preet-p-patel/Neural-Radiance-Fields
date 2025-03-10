@@ -16,6 +16,49 @@ class VolumeRenderer(torch.nn.Module):
         self._chunk_size = cfg.chunk_size
         self._white_background = cfg.white_background if 'white_background' in cfg else False
 
+    # def _compute_weights(
+    #     self,
+    #     deltas,
+    #     rays_density: torch.Tensor,
+    #     eps: float = 1e-10
+    # ):
+    #     # TODO (1.5): Compute transmittance using the equation described in the README
+    #     pass
+    #     alpha = 1 - torch.exp(-rays_density * deltas)
+    #     T = torch.cumprod(torch.cat([torch.ones_like(alpha[:, :1]),  # First T=1
+    #                              1 - alpha + eps], dim=1), dim=1)[:, :-1]
+
+    #     # TODO (1.5): Compute weight used for rendering from transmittance and alpha
+    #     weights = T * alpha
+    #     return weights
+    
+    # def _aggregate(
+    #     self,
+    #     weights: torch.Tensor,
+    #     rays_feature: torch.Tensor
+    # ):
+    #     # TODO (1.5): Aggregate (weighted sum of) features using weights
+    #     pass
+    #     print("weights shape:", weights.shape)
+    #     print("rays_feature shape:", rays_feature.shape)
+    #     N = weights.shape[0]
+    #     O = weights.shape[1]
+        
+    #     if rays_feature.shape == (N * O, 3):  
+    #         rays_feature = rays_feature.view(N, O, 3)  # Reshape to [N, O, 3]
+    #     elif rays_feature.shape == (N, O):  
+    #         rays_feature = rays_feature.unsqueeze(-1)  # Expand to [N, O, 1]
+
+
+    #     print("rf shape:", rays_feature.shape)
+    #     # N = rays_feature.shape[0]
+    #     # weights = weights.view(N, -1, 1)
+    #     feature = torch.sum(weights * rays_feature, dim=1)
+    #     print("feature in agg shape: ", feature.shape)
+    #     #print("end for aggregate")
+        
+    #     return feature
+
     def _compute_weights(
         self,
         deltas,
@@ -23,14 +66,21 @@ class VolumeRenderer(torch.nn.Module):
         eps: float = 1e-10
     ):
         # TODO (1.5): Compute transmittance using the equation described in the README
-        pass
-        alpha = 1 - torch.exp(-rays_density * deltas)
-        T = torch.cumprod(torch.cat([torch.ones_like(alpha[:, :1]),  # First T=1
-                                 1 - alpha + eps], dim=1), dim=1)[:, :-1]
-
+        weights = []
+        B, N, _ = deltas.shape    # [batch_size, n_points, _]
+        T = torch.ones((B,1)).cuda()  #[batch_size, 1]
+        
+        for i in range(N):    #iterates over all sampled points along each ray
+            weights.append(T)
+            T = T * torch.exp(-rays_density[:, i] * deltas[:, i] + eps)  
+            
+        #end of loop size of weights: [N,1] with each tensor [batch_size,1]
+        
         # TODO (1.5): Compute weight used for rendering from transmittance and alpha
-        weights = T * alpha
-        return weights
+        alpha = 1 - torch.exp(-rays_density*deltas + eps)  
+        weights = torch.stack(weights, dim = 1) * alpha    #stack weights to get size [batch_size, n_points, 1]
+        
+        return weights  
     
     def _aggregate(
         self,
@@ -38,26 +88,10 @@ class VolumeRenderer(torch.nn.Module):
         rays_feature: torch.Tensor
     ):
         # TODO (1.5): Aggregate (weighted sum of) features using weights
-        pass
-        print("weights shape:", weights.shape)
-        print("rays_feature shape:", rays_feature.shape)
-        N = weights.shape[0]
-        O = weights.shape[1]
-        
-        if rays_feature.shape == (N * O, 3):  
-            rays_feature = rays_feature.view(N, O, 3)  # Reshape to [N, O, 3]
-        elif rays_feature.shape == (N, O):  
-            rays_feature = rays_feature.unsqueeze(-1)  # Expand to [N, O, 1]
-
-
-        print("rf shape:", rays_feature.shape)
-        # N = rays_feature.shape[0]
-        # weights = weights.view(N, -1, 1)
         feature = torch.sum(weights * rays_feature, dim=1)
-        print("feature in agg shape: ", feature.shape)
-        #print("end for aggregate")
-        
+
         return feature
+
 
     def forward(
         self,
@@ -100,11 +134,11 @@ class VolumeRenderer(torch.nn.Module):
             #print("shape of weights: ", weights.shape)
             # TODO (1.5): Render (color) features using weights
             pass
-            feature = self._aggregate(weights=weights, rays_feature=feature)
+            feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,1))
             print("Shape of feature: ", feature.shape)
             # TODO (1.5): Render depth map
             pass
-            depth = self._aggregate(weights=weights, rays_feature=depth_values)
+            depth = self._aggregate(weights=weights, rays_feature=depth_values.view(-1,n_pts,1))
             print("Shape of depth: ", depth.shape)
             # Return
             cur_out = {
