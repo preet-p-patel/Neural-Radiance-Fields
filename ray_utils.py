@@ -118,11 +118,11 @@ def get_random_pixels_from_image(n_pixels, image_size, camera):
     pass
 
     indices = torch.randperm(xy_grid.shape[0])
-    indices = indices.to(xy_grid.device)
+    indices = indices.to('cuda')
     xy_grid_sub = xy_grid[indices]
-    xy_grid_sub = xy_grid_sub.to(xy_grid.device)
-    # print("indices: ", indices.device)
-    # print("xy_grid_sub: ", xy_grid_sub.device)
+    xy_grid_sub = xy_grid_sub.to('cuda')
+    print("indices: ", indices.device)
+    print("xy_grid_sub: ", xy_grid_sub.device)
     # Return
     return xy_grid_sub.reshape(-1, 2)[:n_pixels]
 
