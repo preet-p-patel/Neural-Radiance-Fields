@@ -33,7 +33,7 @@ class VolumeRenderer(torch.nn.Module):
         A = 1 - alpha +eps
         T[:, 1:, :] = torch.cumprod(A[:, :-1, :], dim=1)
         # TODO (1.5): Compute weight used for rendering from transmittance and alpha
-        weights = T*alpha
+        weights = torch.stack(T, dim = 1) * alpha
         print("shapes: ")
         print("T: ", T.shape)
         print("weights: ", weights.shape)
