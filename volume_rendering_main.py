@@ -211,9 +211,9 @@ def train(
 
             # Run model forward
             out = model(ray_bundle)
-
+            criterion = torch.nn.MSELoss()
             # TODO (Q2.2): Calculate loss
-            loss = None
+            loss = criterion(out['feature'], rgb_gt)
 
             # Backprop
             optimizer.zero_grad()
