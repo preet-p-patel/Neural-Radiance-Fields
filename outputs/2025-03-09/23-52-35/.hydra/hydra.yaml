@@ -140,7 +140,7 @@ hydra:
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /mnt/data/Assignment_3/outputs/2025-03-09/20-49-54
+    output_dir: /mnt/data/Assignment_3/outputs/2025-03-09/23-52-35
     choices:
       hydra/env: default
       hydra/callbacks: null
