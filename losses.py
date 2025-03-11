@@ -3,7 +3,8 @@ import torch.nn.functional as F
 
 def eikonal_loss(gradients):
     # TODO (Q6): Implement eikonal loss
-    pass
+    grad_norm = torch.norm(gradients, dim=-1)
+    return torch.nn.MSELoss()(grad_norm, torch.ones_like(grad_norm))
 
 def sphere_loss(signed_distance, points, radius=1.0):
     return torch.square(signed_distance[..., 0] - (torch.norm(points, dim=-1) - radius)).mean()

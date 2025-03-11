@@ -147,22 +147,17 @@ class SphereTracingRenderer(torch.nn.Module):
         # TODO (Q5): Implement sphere tracing
         # 1) Iteratively update points and distance to the closest surface
         #   in order to compute intersection points of rays with the implicit surface
-        vals = torch.linspace(self.near, self.far, steps = int(self.far-self.near))
-        origins = origins.unsqueeze(1)
-        vals = vals.view(-1, 1)
-
-        pts = origins + vals * directions
-        dist_matrix = implicit_fn(pts)      # passing whole matrix and hoping we get whole matrix with distances of shape [N_rays, n_points, 1]
-        
         #Finding where it first goes below 0
-        dist_matrix = dist_matrix.squeeze(-1)
-        idx = torch.where(dist_matrix <= 0, torch.arange(dist_matrix.shape[1]), float('inf')).min(dim=1)[0]
-        mask = idx != float('inf')       
-        points = pts      #Need to extract points and create mask 
-
         # 2) Maintain a mask with the same batch dimension as the ray origins,
         #   indicating which points hit the surface, and which do not
-        pass
+        points = origins
+        eps = 1e-5
+        for i in range(self.max_iters):
+            distance = implicit_fn(points)
+            points = points + distance * directions
+            mask = torch.abs(distance) < eps
+        return points, mask
+        
 
     def forward(
         self,
