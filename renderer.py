@@ -6,6 +6,127 @@ from pytorch3d.renderer.cameras import CamerasBase
 
 # Volume renderer which integrates color and density along rays
 # according to the equations defined in [Mildenhall et al. 2020]
+
+# Original Work
+# class VolumeRenderer(torch.nn.Module):
+    # def __init__(
+    #     self,
+    #     cfg
+    # ):
+    #     super().__init__()
+
+    #     self._chunk_size = cfg.chunk_size
+    #     self._white_background = cfg.white_background if 'white_background' in cfg else False
+
+    # def _compute_weights(
+    #     self,
+    #     deltas,
+    #     rays_density: torch.Tensor,
+    #     eps: float = 1e-10
+    # ):
+    #     # TODO (1.5): Compute transmittance using the equation described in the README
+    #     pass
+    #     alpha = 1 - torch.exp(-rays_density * deltas)
+    #     T = torch.cumprod(torch.cat([torch.ones_like(alpha[:, :1]),  # First T=1
+    #                              1 - alpha + eps], dim=1), dim=1)[:, :-1]
+
+    #     # TODO (1.5): Compute weight used for rendering from transmittance and alpha
+    #     weights = T * alpha
+    #     return weights
+    
+    # def _aggregate(
+    #     self,
+    #     weights: torch.Tensor,
+    #     rays_feature: torch.Tensor
+    # ):
+    #     # TODO (1.5): Aggregate (weighted sum of) features using weights
+    #     pass
+    #     print("weights shape:", weights.shape)
+    #     print("rays_feature shape:", rays_feature.shape)
+    #     N = weights.shape[0]
+    #     O = weights.shape[1]
+        
+    #     if rays_feature.shape == (N * O, 3):  
+    #         rays_feature = rays_feature.view(N, O, 3)  # Reshape to [N, O, 3]
+    #     elif rays_feature.shape == (N, O):  
+    #         rays_feature = rays_feature.unsqueeze(-1)  # Expand to [N, O, 1]
+
+
+    #     print("rf shape:", rays_feature.shape)
+    #     # N = rays_feature.shape[0]
+    #     # weights = weights.view(N, -1, 1)
+    #     feature = torch.sum(weights * rays_feature, dim=1)
+    #     print("feature in agg shape: ", feature.shape)
+    #     #print("end for aggregate")
+        
+    #     return feature
+
+    # def forward(
+    #     self,
+    #     sampler,
+    #     implicit_fn,
+    #     ray_bundle,
+    # ):
+    #     B = ray_bundle.shape[0]
+
+    #     # Process the chunks of rays.
+    #     chunk_outputs = []
+
+    #     for chunk_start in range(0, B, self._chunk_size):
+    #         cur_ray_bundle = ray_bundle[chunk_start:chunk_start+self._chunk_size]
+
+    #         # Sample points along the ray
+    #         cur_ray_bundle = sampler(cur_ray_bundle)
+    #         n_pts = cur_ray_bundle.sample_shape[1]
+
+    #         # Call implicit function with sample points
+    #         implicit_output = implicit_fn(cur_ray_bundle)
+    #         density = implicit_output['density']
+    #         feature = implicit_output['feature']
+
+    #         # Compute length of each ray segment
+    #         depth_values = cur_ray_bundle.sample_lengths[..., 0]
+    #         deltas = torch.cat(
+    #             (
+    #                 depth_values[..., 1:] - depth_values[..., :-1],
+    #                 1e10 * torch.ones_like(depth_values[..., :1]),
+    #             ),
+    #             dim=-1,
+    #         )[..., None]
+
+    #         # Compute aggregation weights
+    #         weights = self._compute_weights(
+    #             deltas.view(-1, n_pts, 1),
+    #             density.view(-1, n_pts, 1)
+    #         ) 
+    #         #print("shape of weights: ", weights.shape)
+    #         # TODO (1.5): Render (color) features using weights
+    #         pass
+    #         feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,1))
+    #         print("Shape of feature: ", feature.shape)
+    #         # TODO (1.5): Render depth map
+    #         pass
+    #         depth = self._aggregate(weights=weights, rays_feature=depth_values.view(-1,n_pts,1))
+    #         print("Shape of depth: ", depth.shape)
+    #         # Return
+    #         cur_out = {
+    #             'feature': feature,
+    #             'depth': depth,
+    #         }
+
+    #         chunk_outputs.append(cur_out)
+
+    #     # Concatenate chunk outputs
+    #     out = {
+    #         k: torch.cat(
+    #           [chunk_out[k] for chunk_out in chunk_outputs],
+    #           dim=0
+    #         ) for k in chunk_outputs[0].keys()
+    #     }
+
+    #     return out
+
+# Ashwin Class
 class VolumeRenderer(torch.nn.Module):
     def __init__(
         self,
@@ -23,14 +144,21 @@ class VolumeRenderer(torch.nn.Module):
         eps: float = 1e-10
     ):
         # TODO (1.5): Compute transmittance using the equation described in the README
-        pass
-        alpha = 1 - torch.exp(-rays_density * deltas)
-        T = torch.cumprod(torch.cat([torch.ones_like(alpha[:, :1]),  # First T=1
-                                 1 - alpha + eps], dim=1), dim=1)[:, :-1]
-
+        weights = []
+        B, N, _ = deltas.shape    # [batch_size, n_points, _]
+        T = torch.ones((B,1)).cuda()  #[batch_size, 1]
+        
+        for i in range(N):    #iterates over all sampled points along each ray
+            weights.append(T)
+            T = T * torch.exp(-rays_density[:, i] * deltas[:, i] + eps)  
+            
+        #end of loop size of weights: [N,1] with each tensor [batch_size,1]
+        
         # TODO (1.5): Compute weight used for rendering from transmittance and alpha
-        weights = T * alpha
-        return weights
+        alpha = 1 - torch.exp(-rays_density*deltas + eps)  
+        weights = torch.stack(weights, dim = 1) * alpha    #stack weights to get size [batch_size, n_points, 1]
+        
+        return weights  
     
     def _aggregate(
         self,
@@ -38,25 +166,8 @@ class VolumeRenderer(torch.nn.Module):
         rays_feature: torch.Tensor
     ):
         # TODO (1.5): Aggregate (weighted sum of) features using weights
-        pass
-        print("weights shape:", weights.shape)
-        print("rays_feature shape:", rays_feature.shape)
-        N = weights.shape[0]
-        O = weights.shape[1]
-        
-        if rays_feature.shape == (N * O, 3):  
-            rays_feature = rays_feature.view(N, O, 3)  # Reshape to [N, O, 3]
-        elif rays_feature.shape == (N, O):  
-            rays_feature = rays_feature.unsqueeze(-1)  # Expand to [N, O, 1]
-
-
-        print("rf shape:", rays_feature.shape)
-        # N = rays_feature.shape[0]
-        # weights = weights.view(N, -1, 1)
         feature = torch.sum(weights * rays_feature, dim=1)
-        print("feature in agg shape: ", feature.shape)
-        #print("end for aggregate")
-        
+
         return feature
 
     def forward(
@@ -97,15 +208,13 @@ class VolumeRenderer(torch.nn.Module):
                 deltas.view(-1, n_pts, 1),
                 density.view(-1, n_pts, 1)
             ) 
-            #print("shape of weights: ", weights.shape)
+
             # TODO (1.5): Render (color) features using weights
-            pass
-            feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,1))
-            print("Shape of feature: ", feature.shape)
+            feature = self._aggregate(weights, feature.view(-1,n_pts,3))
+
             # TODO (1.5): Render depth map
-            pass
-            depth = self._aggregate(weights=weights, rays_feature=depth_values.view(-1,n_pts,1))
-            print("Shape of depth: ", depth.shape)
+            depth = self._aggregate(weights, depth_values.view(-1,n_pts,1))
+
             # Return
             cur_out = {
                 'feature': feature,
@@ -123,7 +232,6 @@ class VolumeRenderer(torch.nn.Module):
         }
 
         return out
-
 
 # Volume renderer which integrates color and density along rays
 # according to the equations defined in [Mildenhall et al. 2020]
