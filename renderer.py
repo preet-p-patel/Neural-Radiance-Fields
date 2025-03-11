@@ -27,13 +27,13 @@ class VolumeRenderer(torch.nn.Module):
         # TODO (1.5): Compute transmittance using the equation described in the README
         pass
         B, N, _ = deltas.shape
-        alpha = 1 - torch.exp(-rays_density * deltas + eps)
+        alpha = 1 - torch.exp(-rays_density * deltas) + eps
         T = torch.ones((B, N, 1)).cuda()
         
         A = 1 - alpha +eps
         T[:, 1:, :] = torch.cumprod(A[:, :-1, :], dim=1)
         # TODO (1.5): Compute weight used for rendering from transmittance and alpha
-        weights = torch.stack(T, dim = 1) * alpha
+        weights = T * alpha
         print("shapes: ")
         print("T: ", T.shape)
         print("weights: ", weights.shape)
@@ -90,7 +90,7 @@ class VolumeRenderer(torch.nn.Module):
             #print("shape of weights: ", weights.shape)
             # TODO (1.5): Render (color) features using weights
             pass
-            feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,1))
+            feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,3))
             print("Shape of feature: ", feature.shape)
             # TODO (1.5): Render depth map
             pass
