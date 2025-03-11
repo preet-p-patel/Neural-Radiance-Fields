@@ -148,11 +148,11 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
 
     # TODO (Q1.3): Get ray origins from camera center
     pass
-    rays_o = camera.get_camera_center()
+    rays_o = camera.get_camera_center().expand(world_space_points.shape[0], -1)
     # TODO (Q1.3): Get ray directions as image_plane_points - rays_o
     pass
     rays_d = world_space_points - rays_o
-
+    rays_d = torch.nn.normalize(rays_d)
     # Create and return RayBundle
     return RayBundle(
         rays_o,
