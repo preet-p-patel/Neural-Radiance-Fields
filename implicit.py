@@ -369,6 +369,23 @@ class NeuralSurface(torch.nn.Module):
     ):
         super().__init__()
         # TODO (Q6): Implement Neural Surface MLP to output per-point SDF
+        self.harmonic_embedding_xyz = HarmonicEmbedding(3, cfg.n_harmonic_functions_xyz)
+        embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
+        n_x = cfg.n_hidden_neurons_xyz
+
+        self.layer1 = torch.nn.Linear(embedding_dim_xyz, n_x) 
+        self.layer2 = torch.nn.Linear(n_x, n_x)
+        self.layer3 = torch.nn.Linear(n_x, n_x)
+        self.layer4 = torch.nn.Linear(n_x, n_x)
+        self.layer5 = torch.nn.Linear(n_x, n_x)
+
+        self.layer6 = torch.nn.Linear(n_x + embedding_dim_xyz, n_x)
+        self.layer7 = torch.nn.Linear(n_x, n_x)
+        self.layer8 = torch.nn.Linear(n_x, n_x)
+
+        self.dist_out = torch.nn.Linear(n_x, 1)
+
+        self.relu = torch.nn.ReLU()
         # TODO (Q7): Implement Neural Surface MLP to output per-point color
 
     def get_distance(
@@ -381,7 +398,24 @@ class NeuralSurface(torch.nn.Module):
             distance: N X 1 Tensor, where N is number of input points
         '''
         points = points.view(-1, 3)
-        pass
+        emb_pos = self.harmonic_embedding_xyz(points)
+
+        x = self.relu(self.layer1(emb_pos))
+        x = self.relu(self.layer2(x))
+        x = self.relu(self.layer3(x))
+        x = self.relu(self.layer4(x))
+        x = self.relu(self.layer5(x))
+
+        x = torch.cat([x, emb_pos], dim=-1)
+        
+        x = self.relu(self.layer6(x))
+        x = self.relu(self.layer7(x))
+        x = self.relu(self.layer8(x))
+
+        distance = self.relu(self.density_output(x))
+        distance.view(-1,1)
+        return distance
+        
     
     def get_color(
         self,
