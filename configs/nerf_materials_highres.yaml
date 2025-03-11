@@ -14,7 +14,7 @@ training:
   checkpoint_interval: 100     #50
   resume: True
 
-  render_interval: 250           #10
+  render_interval: 249           #10
 
 data:
   image_size: [400, 400]
