@@ -212,12 +212,12 @@ def train(
             # Run model forward
             out = model(ray_bundle)
             criterion = torch.nn.MSELoss()
-            print("All good till 'ere")
-            print("rgb_gt device: ", rgb_gt.device)
-            print("feature device: ", out['feature'].device)
+            # print("All good till 'ere")
+            # print("rgb_gt device: ", rgb_gt.device)
+            # print("feature device: ", out['feature'].device)
             # TODO (Q2.2): Calculate loss
             loss = criterion(out['feature'], rgb_gt)
-            print("ayo whatt")
+            # print("ayo whatt")
 
             # Backprop
             optimizer.zero_grad()
