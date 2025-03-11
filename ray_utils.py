@@ -117,8 +117,10 @@ def get_random_pixels_from_image(n_pixels, image_size, camera):
     # TODO (Q2.1): Random subsampling of pixel coordinaters
     pass
 
-    indices = torch.randperm(xy_grid.shape[0]).to('cuda')
-    xy_grid_sub = xy_grid[indices].to('cuda')
+    indices = torch.randperm(xy_grid.shape[0])
+    indices = indices.to(xy_grid.device)
+    xy_grid_sub = xy_grid[indices]
+    xy_grid_sub = xy_grid_sub.to(xy_grid.device)
     # print("indices: ", indices.device)
     # print("xy_grid_sub: ", xy_grid_sub.device)
     # Return
