@@ -123,8 +123,8 @@ def get_random_pixels_from_image(n_pixels, image_size, camera):
     xy_grid_sub = xy_grid[indices]
     xy_grid = xy_grid.to(dev)
     xy_grid_sub = xy_grid_sub.to('cuda')
-    print("indices: ", indices.device)
-    print("xy_grid_sub: ", xy_grid_sub.device)
+    # print("indices: ", indices.device)
+    # print("xy_grid_sub: ", xy_grid_sub.device)
     # Return
     return xy_grid_sub.reshape(-1, 2)[:n_pixels]
 

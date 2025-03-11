@@ -298,7 +298,68 @@ class NeuralRadianceField(torch.nn.Module):
         embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
         embedding_dim_dir = self.harmonic_embedding_dir.output_dim
 
-        pass
+        n_x = cfg.n_hidden_neurons_xyz
+        n_d = cfg.n_hidden_neurons_dir
+
+        self.layer1 = torch.nn.Linear(embedding_dim_xyz, n_x) 
+        self.layer2 = torch.nn.Linear(n_x, n_x)
+        self.layer3 = torch.nn.Linear(n_x, n_x)
+        self.layer4 = torch.nn.Linear(n_x, n_x)
+        self.layer5 = torch.nn.Linear(n_x, n_x)
+        
+        self.layer6 = torch.nn.Linear(n_x + embedding_dim_xyz, n_x)
+        self.layer7 = torch.nn.Linear(n_x, n_x)
+        self.layer8 = torch.nn.Linear(n_x, n_x)
+        
+        self.density_output = torch.nn.Linear(n_x, 1) 
+        self.bottleneck = torch.nn.Linear(n_x, n_d) 
+       
+        self.color_layer1 = torch.nn.Linear(n_d + embedding_dim_dir, n_d)
+        self.color_output = torch.nn.Linear(n_d, 3)  
+        
+        self.relu = torch.nn.ReLU()
+        self.sigmoid = torch.nn.Sigmoid()
+
+
+
+    def forward(self, ray_bundle):
+        pts = ray_bundle.sample_points
+        dir = ray_bundle.directions
+
+        B, N, _ = pts.shape
+
+        emb_pos = self.harmonic_embedding_xyz(pts)
+        emb_dir = self.harmonic_embedding_dir(dir).unsqueeze(1)
+
+        x = self.relu(self.layer1(emb_pos))
+        x = self.relu(self.layer2(x))
+        x = self.relu(self.layer3(x))
+        x = self.relu(self.layer4(x))
+        x = self.relu(self.layer5(x))
+        
+        x = torch.cat([x, emb_pos], dim=-1)
+        
+        x = self.relu(self.layer6(x))
+        x = self.relu(self.layer7(x))
+        x = self.relu(self.layer8(x))
+        
+        density = self.relu(self.density_output(x))
+        
+        bottleneck_features = self.relu(self.bottleneck(x))
+       
+        color_input = torch.cat([bottleneck_features, emb_dir], dim=-1)
+        
+        color_features = self.relu(self.color_layer1(color_input))
+        color = self.sigmoid(self.color_output(color_features)) 
+        
+        density = density.reshape(B, N, 1)
+        color = color.reshape(B, N, 3)
+        
+        return {
+            'density': density,
+            'feature': color}
+
+         
 
 
 class NeuralSurface(torch.nn.Module):
