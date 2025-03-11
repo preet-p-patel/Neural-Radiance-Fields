@@ -371,7 +371,7 @@ class NeuralSurface(torch.nn.Module):
         # TODO (Q6): Implement Neural Surface MLP to output per-point SDF
         self.harmonic_embedding_xyz = HarmonicEmbedding(3, cfg.n_harmonic_functions_xyz)
         embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
-        n_x = cfg.n_layers_distance
+        n_x = cfg.n_hidden_neurons_distance
 
         self.layer1 = torch.nn.Linear(embedding_dim_xyz, n_x) 
         self.layer2 = torch.nn.Linear(n_x, n_x)
