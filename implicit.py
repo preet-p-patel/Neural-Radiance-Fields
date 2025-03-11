@@ -329,7 +329,7 @@ class NeuralRadianceField(torch.nn.Module):
         B, N, _ = pts.shape
 
         emb_pos = self.harmonic_embedding_xyz(pts)
-        emb_dir = self.harmonic_embedding_dir(dir).unsqueeze(1)
+        emb_dir = self.harmonic_embedding_dir(dir).unsqueeze(1).expand(1, N, 1)
 
         x = self.relu(self.layer1(emb_pos))
         x = self.relu(self.layer2(x))
