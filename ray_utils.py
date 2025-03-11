@@ -154,9 +154,9 @@ def get_rays_from_pixels(xy_grid, image_size, camera):
     rays_d = world_space_points - rays_o
     rays_d = F.normalize(rays_d)
 
-    print("In ray_utils: ")
-    print("Shape of rays_o: ", rays_o.shape)
-    print("Shape of rays_d: ", rays_d.shape)
+    # print("In ray_utils: ")
+    # print("Shape of rays_o: ", rays_o.shape)
+    # print("Shape of rays_d: ", rays_d.shape)
     # Create and return RayBundle
     return RayBundle(
         rays_o,
