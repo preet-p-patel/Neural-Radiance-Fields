@@ -412,7 +412,7 @@ class NeuralSurface(torch.nn.Module):
         x = self.relu(self.layer7(x))
         x = self.relu(self.layer8(x))
 
-        distance = self.relu(self.density_output(x))
+        distance = self.relu(self.dist_out(x))
         distance.view(-1,1)
         return distance
         
