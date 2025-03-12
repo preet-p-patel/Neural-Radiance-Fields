@@ -210,6 +210,12 @@ def sdf_to_density(signed_distance, alpha, beta):
     density = torch.where(signed_distance > 0, alpha*0.5*torch.exp(-signed_distance/beta), alpha*(1 - 0.5*torch.exp(signed_distance/beta)) )
     return density
 
+# Questions 8.3 - Alternate SDF Conversions
+def naive_gaussian_conversion(signed_distance, beta):
+    density = torch.exp(-signed_distance**2 / (2 * beta**2))
+    return density
+
+
 class VolumeSDFRenderer(VolumeRenderer):
     def __init__(
         self,
@@ -221,6 +227,7 @@ class VolumeSDFRenderer(VolumeRenderer):
         self._white_background = cfg.white_background if 'white_background' in cfg else False
         self.alpha = cfg.alpha
         self.beta = cfg.beta
+        self.beta_naive_gaussian = cfg.beta_naive_gaussian
 
         self.cfg = cfg
 
