@@ -121,7 +121,7 @@ def get_nerf_datasets(
     ]
 
     train_idx, val_idx, test_idx = train_data["split"]
-    train_idx = train_idx[:20]                              # Using only 20 views 
+    train_idx = train_idx[:50]                              # Using only 20 views 
     train_dataset, val_dataset, test_dataset = [
         ListDataset(
             [
