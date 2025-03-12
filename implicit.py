@@ -100,6 +100,14 @@ class ComplexSceneSDF(torch.nn.Module):
             TorusSDF(cfg.torus2),
             # Add more primitives as needed
         ])
+
+        self.center = torch.nn.Parameter(
+            torch.tensor(cfg.torus1.center.val).float().unsqueeze(0), requires_grad=cfg.torus1.center.opt
+        )
+
+        self.radii = torch.nn.Parameter(
+            torch.tensor(cfg.torus1.radii.val).float().unsqueeze(0), requires_grad=cfg.torus1.radii.opt
+        )
         
         # Optional: Smooth union blending factor
         self.smooth_union_k = cfg.smooth_union_k if hasattr(cfg, "smooth_union_k") else 0.0
