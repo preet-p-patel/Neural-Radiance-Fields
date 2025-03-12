@@ -24,10 +24,6 @@ implicit_function:
   sdf:
     type: complex_sdf
 
-    center:
-        val: [0.0, 0.0, 0.0]
-        opt: True
-        
     torus1:
       center:
         val: [0.0, 0.0, 0.0]
