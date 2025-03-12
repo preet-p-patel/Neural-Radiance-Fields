@@ -72,6 +72,13 @@ class VolumeRenderer(torch.nn.Module):
             density = implicit_output['density']
             feature = implicit_output['feature']
 
+            cur_ray_bundle = sampler(cur_ray_bundle, density.view(-1,n_pts,1))       # Resampling for finer sampling
+            n_pts = cur_ray_bundle.sample_shape[1]
+            
+            implicit_output = implicit_fn(cur_ray_bundle)
+            density = implicit_output['density']
+            feature = implicit_output['feature']
+            
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
             deltas = torch.cat(
