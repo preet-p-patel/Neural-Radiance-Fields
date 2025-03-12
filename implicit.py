@@ -481,6 +481,8 @@ class NeuralSurface(torch.nn.Module):
         
         color.view(-1,1)   
         distance.view(-1,1)
+
+        return distance, color
         
     def forward(self, points):
         return self.get_distance(points)
