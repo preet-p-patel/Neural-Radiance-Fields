@@ -386,7 +386,12 @@ class NeuralSurface(torch.nn.Module):
         self.dist_out = torch.nn.Linear(n_x, 1)
 
         self.relu = torch.nn.ReLU()
+        self.sigmoid = torch.nn.Sigmoid()
+
         # TODO (Q7): Implement Neural Surface MLP to output per-point color
+        self.color1 = torch.nn.Linear(n_x + embedding_dim_xyz, n_x)
+        self.color2 = torch.nn.Linear(n_x, n_x)
+        self.color_out = torch.nn.Linear(n_x, 3)
 
     def get_distance(
         self,
@@ -427,7 +432,21 @@ class NeuralSurface(torch.nn.Module):
             distance: N X 3 Tensor, where N is number of input points
         '''
         points = points.view(-1, 3)
-        pass
+        emb_pos = self.harmonic_embedding_xyz(points)
+
+        x = self.relu(self.layer1(emb_pos))
+        x = self.relu(self.layer2(x))
+        x = self.relu(self.layer3(x))
+        x = self.relu(self.layer4(x))
+        x = self.relu(self.layer5(x))
+
+        x = torch.cat([x, emb_pos], dim=-1)
+
+        x = self.relu(self.color1(x))
+        x = self.relu(self.color2(x))
+        color = self.sigmoid(self.color_out(x))
+        color.view(-1,1)
+        return color
     
     def get_distance_color(
         self,
@@ -440,6 +459,28 @@ class NeuralSurface(torch.nn.Module):
         You may just implement this by independent calls to get_distance, get_color
             but, depending on your MLP implementation, it maybe more efficient to share some computation
         '''
+        points = points.view(-1, 3)
+        emb_pos = self.harmonic_embedding_xyz(points)
+
+        x = self.relu(self.layer1(emb_pos))
+        x = self.relu(self.layer2(x))
+        x = self.relu(self.layer3(x))
+        x = self.relu(self.layer4(x))
+        x = self.relu(self.layer5(x))
+
+        x = torch.cat([x, emb_pos], dim=-1)
+        
+        dist = self.relu(self.layer6(dist))
+        dist = self.relu(self.layer7(dist))
+        dist = self.relu(self.layer8(dist))
+        distance = self.dist_out(dist)
+
+        color = self.relu(self.color1(x))
+        color = self.relu(self.color2(color))
+        color = self.sigmoid(self.color_out(color))
+        
+        color.view(-1,1)   
+        distance.view(-1,1)
         
     def forward(self, points):
         return self.get_distance(points)
