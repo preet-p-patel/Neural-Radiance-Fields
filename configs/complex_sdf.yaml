@@ -24,13 +24,23 @@ implicit_function:
   sdf:
     type: complex_sdf
 
-    center:
-      val: [0.0, 0.0, 0.0]
-      opt: True
+    torus1:
+      center:
+        val: [0.0, 0.0, 0.0]
+        opt: True
 
-    radii:
-      val: [1.0, 0.25]
-      opt: False
+      radii:
+        val: [1.0, 0.25]
+        opt: False
+    
+    torus2:
+      center:
+        val: [1.0, 0.0, 0.0]
+        opt: True
+
+      radii:
+        val: [1.0, 0.25]
+        opt: False
 
   feature:
     rainbow: True

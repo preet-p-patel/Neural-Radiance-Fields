@@ -96,10 +96,8 @@ class ComplexSceneSDF(torch.nn.Module):
         
         # Define the list of SDF primitives
         self.primitives = torch.nn.ModuleList([
-            SphereSDF(cfg.sphere1),
-            SphereSDF(cfg.sphere2),
-            BoxSDF(cfg.box1),
             TorusSDF(cfg.torus1),
+            TorusSDF(cfg.torus2),
             # Add more primitives as needed
         ])
         
