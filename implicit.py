@@ -470,7 +470,7 @@ class NeuralSurface(torch.nn.Module):
 
         x = torch.cat([x, emb_pos], dim=-1)
         
-        dist = self.relu(self.layer6(dist))
+        dist = self.relu(self.layer6(x))
         dist = self.relu(self.layer7(dist))
         dist = self.relu(self.layer8(dist))
         distance = self.dist_out(dist)
