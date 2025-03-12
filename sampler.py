@@ -88,29 +88,29 @@ class StratifiedRaysampler(torch.nn.Module):
         
         else:
             O = ray_bundle.origins.shape[0]  # Number of rays
+            N = self.n_pts_per_ray  # Number of depth samples per ray
 
-            # Compute uniform z values (initial guess)
-            z_vals_uniform = torch.linspace(self.min_depth, self.max_depth, self.n_pts_per_ray, device='cuda')
-            z_vals_uniform = z_vals_uniform.unsqueeze(0).expand(O, -1)  # Shape: [O, self.n_pts_per_ray]
+            # Compute initial uniform z values
+            z_vals_uniform = torch.linspace(self.min_depth, self.max_depth, N, device='cuda')  # [N]
+            z_vals_uniform = z_vals_uniform.unsqueeze(0).unsqueeze(-1).expand(O, N, 1)  # [O, N, 1]
 
-            # Compute CDF from density (normalized)
-            density += 1e-5  # Avoid zeros
-            pdf = density / torch.sum(density, dim=-1, keepdim=True)  # Probability distribution
-            cdf = torch.cumsum(pdf, dim=-1)  # Cumulative distribution function
-            cdf = torch.cat([torch.zeros_like(cdf[:, :1]), cdf], dim=-1)  # Ensure starts at 0
+            # Compute CDF from density (normalize to create probability distribution)
+            density = density.squeeze(-1) + 1e-5  # Remove extra dimension and avoid zeros
+            pdf = density / torch.sum(density, dim=-1, keepdim=True)  # PDF: [O, N]
+            cdf = torch.cumsum(pdf, dim=-1)  # CDF: [O, N]
+            cdf = torch.cat([torch.zeros_like(cdf[:, :1]), cdf], dim=-1)  # Add 0 at start → [O, N+1]
 
             # Sample more points in high-density regions
-            u = torch.rand(O, self.n_pts_per_ray, device='cuda')  # Uniform samples
-            z_vals = torch.searchsorted(cdf, u, right=True)  # Get indices in CDF
-            z_vals = torch.clamp(z_vals, 1, self.n_pts_per_ray) - 1  # Clamp to avoid out of bounds
+            u = torch.rand(O, N, device='cuda')  # Uniform random samples [O, N]
+            indices = torch.searchsorted(cdf, u, right=True)  # Find indices in CDF [O, N]
+            indices = torch.clamp(indices, 1, N) - 1  # Clamp to valid range [1, N] → [0, N-1]
 
-            # Convert indices to actual z values
-            z_vals = torch.gather(z_vals_uniform, dim=1, index=z_vals)  # Shape: [O, self.n_pts_per_ray]
-            z_vals = z_vals.unsqueeze(-1)  # Shape: [O, self.n_pts_per_ray, 1]
+            # Convert indices to actual depth values
+            z_vals = torch.gather(z_vals_uniform, dim=1, index=indices.unsqueeze(-1))  # [O, N, 1]
 
             # Compute sample points
-            origins = ray_bundle.origins.unsqueeze(1).expand(-1, self.n_pts_per_ray, -1)  # [O, N, 3]
-            directions = ray_bundle.directions.unsqueeze(1).expand(-1, self.n_pts_per_ray, -1)  # [O, N, 3]
+            origins = ray_bundle.origins.unsqueeze(1).expand(-1, N, -1)  # [O, N, 3]
+            directions = ray_bundle.directions.unsqueeze(1).expand(-1, N, -1)  # [O, N, 3]
             sample_points = origins + z_vals * directions  # [O, N, 3]
 
             # Return updated ray bundle
