@@ -252,7 +252,8 @@ class VolumeSDFRenderer(VolumeRenderer):
 
             # Call implicit function with sample points
             distance, color = implicit_fn.get_distance_color(cur_ray_bundle.sample_points)
-            density = sdf_to_density(distance, self.alpha, self.beta) # TODO (Q7): convert SDF to density
+            # density = sdf_to_density(distance, self.alpha, self.beta) # TODO (Q7): convert SDF to density
+            density = naive_gaussian_conversion(distance, self.beta_naive_gaussian) #8.3 - Alternate SDF Techniques
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
