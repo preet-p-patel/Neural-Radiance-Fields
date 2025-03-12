@@ -35,10 +35,10 @@ training:
   lr_scheduler_gamma: 0.8
 
   checkpoint_path: ./volsdf_checkpoint
-  checkpoint_interval: 50
+  checkpoint_interval: 100
   resume: True
 
-  render_interval: 49       #10
+  render_interval: 249       #10
 
   inter_weight: 0.1
   eikonal_weight: 0.02
