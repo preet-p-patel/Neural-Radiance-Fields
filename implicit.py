@@ -83,12 +83,6 @@ class TorusSDF(torch.nn.Module):
         )
         return (torch.linalg.norm(q, dim=-1) - self.radii[..., 1]).unsqueeze(-1)
 
-sdf_dict = {
-    'sphere': SphereSDF,
-    'box': BoxSDF,
-    'torus': TorusSDF,
-}
-
 # Question 8.1 - Rendering multiple SDF using primitives
 class ComplexSceneSDF(torch.nn.Module):
     def __init__(self, cfg):
@@ -149,7 +143,12 @@ class ComplexSceneSDF(torch.nn.Module):
         
         return sdf
 
-
+sdf_dict = {
+    'sphere': SphereSDF,
+    'box': BoxSDF,
+    'torus': TorusSDF,
+    'complex_sdf': ComplexSceneSDF
+}
 
 # Converts SDF into density/feature volume
 class SDFVolume(torch.nn.Module):
