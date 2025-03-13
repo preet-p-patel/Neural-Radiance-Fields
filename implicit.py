@@ -86,22 +86,13 @@ class TorusSDF(torch.nn.Module):
 # Question 8.1 - Rendering multiple SDF using primitives
 class ComplexSceneSDF(torch.nn.Module):
     def __init__(self, cfg):
-        """
-        Initializes a complex scene composed of multiple SDF primitives.
-
-        Parameters:
-        - cfg: Configuration object containing parameters for the primitives.
-        """
         super().__init__()
         
-        # Define the list of SDF primitives
         self.primitives = torch.nn.ModuleList([
             TorusSDF(cfg.torus1),
             TorusSDF(cfg.torus2),
             TorusSDF(cfg.torus3),
             TorusSDF(cfg.torus4)
-
-            # Add more primitives as needed
         ])
 
         self.center = torch.nn.Parameter(
@@ -112,21 +103,9 @@ class ComplexSceneSDF(torch.nn.Module):
             torch.tensor(cfg.torus1.radii.val).float().unsqueeze(0), requires_grad=cfg.torus1.radii.opt
         )
         
-        # Optional: Smooth union blending factor
         self.smooth_union_k = cfg.smooth_union_k if hasattr(cfg, "smooth_union_k") else 0.0
 
     def smooth_union(self, d1, d2, k):
-        """
-        Performs a smooth union operation between two SDFs.
-
-        Parameters:
-        - d1: Distance from the first SDF.
-        - d2: Distance from the second SDF.
-        - k: Blending factor for smooth union.
-
-        Returns:
-        - Smoothly blended distance field.
-        """
         if k > 0.0:
             res = torch.exp(-k * d1) + torch.exp(-k * d2)
             return -torch.log(torch.clamp(res, min=1e-6)) / k
@@ -134,19 +113,8 @@ class ComplexSceneSDF(torch.nn.Module):
             return torch.minimum(d1, d2)
 
     def forward(self, points):
-        """
-        Computes the signed distance for the entire scene by combining all primitives.
-
-        Parameters:
-        - points: A tensor of 3D points to evaluate.
-
-        Returns:
-        - Signed distance to the closest surface in the scene.
-        """
-        # Initialize with the first primitive's SDF
         sdf = self.primitives[0](points)
         
-        # Combine all other primitives using smooth union or regular union
         for primitive in self.primitives[1:]:
             sdf = self.smooth_union(sdf, primitive(points), self.smooth_union_k)
         

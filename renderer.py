@@ -34,9 +34,6 @@ class VolumeRenderer(torch.nn.Module):
         T[:, 1:, :] = torch.cumprod(A[:, :-1, :], dim=1)
         # TODO (1.5): Compute weight used for rendering from transmittance and alpha
         weights = T * alpha
-        # print("shapes: ")
-        # print("T: ", T.shape)
-        # print("weights: ", weights.shape)
         return weights
     
     def _aggregate(
@@ -94,15 +91,12 @@ class VolumeRenderer(torch.nn.Module):
                 deltas.view(-1, n_pts, 1),
                 density.view(-1, n_pts, 1)
             ) 
-            #print("shape of weights: ", weights.shape)
             # TODO (1.5): Render (color) features using weights
             pass
             feature = self._aggregate(weights=weights, rays_feature=feature.view(-1,n_pts,3))
-            # print("Shape of feature: ", feature.shape)
             # TODO (1.5): Render depth map
             pass
             depth = self._aggregate(weights=weights, rays_feature=depth_values.view(-1,n_pts,1))
-            # print("Shape of depth: ", depth.shape)
             # Return
             cur_out = {
                 'feature': feature,
